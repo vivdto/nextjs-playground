@@ -41,7 +41,7 @@ const Hero = () => {
                 />
             </motion.div>
 
-            <p className="text-center text-xl max-w-[500px] mx-auto mt-8 text-white/80">I'm a </p>
+          
 
             <Image
                 src={profilepic}

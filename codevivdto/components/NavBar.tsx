@@ -1,6 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
+import { ModeToggle } from './theme-toggle'
+
 
 const NavBar = () => {
   return (
@@ -18,6 +20,8 @@ const NavBar = () => {
           <Button variant="outline" asChild>
             <Link href="/signup">Signup</Link>
           </Button>
+          <ModeToggle/>
+
         </li>
       </ul>
     </nav>

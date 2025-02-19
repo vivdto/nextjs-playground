@@ -25,7 +25,7 @@ export default function Home() {
     <>
       {/* Add favicon link */}
       <Head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
       </Head>
 
       <div className={`h-[100vh] w-[100vw] flex flex-col justify-center items-center ${sigmar.className} transform transition-all duration-500`}>

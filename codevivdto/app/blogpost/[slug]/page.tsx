@@ -14,14 +14,14 @@ import Onthispage from '@/components/Onthispage';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { rehypePrettyCode } from 'rehype-pretty-code';
 import { transformerCopyButton } from '@rehype-pretty/transformers';
-import { Metadata } from 'next';
+import { Metadata, PageProps } from 'next';
 
-// ✅ Step 1: Ensure correct typing for params
-interface BlogPageProps {
-  params: { slug: string };  // ✅ No async or Promise here
+// ✅ Fix: Ensure `params` matches Next.js 15 expectations
+interface BlogPageProps extends PageProps {
+  params: Promise<{ slug: string }>;  // ✅ Marked as a Promise
 }
 
-// ✅ Step 2: Fetch Markdown Content (remains unchanged)
+// ✅ Function to fetch markdown content
 async function getMarkdownContent(slug: string) {
   const filePath = path.join(process.cwd(), "content", `${slug}.md`);
 
@@ -53,9 +53,9 @@ async function getMarkdownContent(slug: string) {
   return { data, htmlContent };
 }
 
-// ✅ Step 3: Ensure Correct Function Signature (No Awaited<>)
+// ✅ Fix: Resolve `params` as a Promise
 export default async function BlogPage({ params }: BlogPageProps) {  
-  const { slug } = params;  // ✅ Directly extract slug
+  const { slug } = await params;  // ✅ Await `params` explicitly
   const { data, htmlContent } = await getMarkdownContent(slug);
 
   return (
@@ -71,11 +71,9 @@ export default async function BlogPage({ params }: BlogPageProps) {
   );
 }
 
-// ✅ Step 4: Correct Metadata Generation
-export async function generateMetadata(
-  { params }: BlogPageProps
-): Promise<Metadata> {
-  const { slug } = params;
+// ✅ Fix: Resolve `params` inside `generateMetadata`
+export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
+  const { slug } = await params;  // ✅ Await `params`
   const { data } = await getMarkdownContent(slug);
 
   return {

@@ -60,7 +60,7 @@ const NavBar = () => {
             </div>
             <ul className='hidden md:flex w-full justify-end items-center space-x-4 '>
                 <li><Link href={"/"}>Home</Link></li>
-                <li><Link href={"/about"}>About</Link></li>
+                <li><Link href={"about"}>About</Link></li>
                 <li><Link href={"/blog"}>Blog</Link></li>
                 <li><Link href={"/contact"}>Contact</Link></li>
                 <li className="buttons px-4 space-x-2">

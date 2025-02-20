@@ -1,27 +1,28 @@
-import MaxWidthWrapper from '@/components/MaxWidthWrapper'
-import React from 'react'
-import { unified } from "unified"
-import remarkParse from "remark-parse"
-import remarkFrontmatter from "remark-frontmatter" 
-import remarkRehype from "remark-rehype"
-import rehypeSlug from 'rehype-slug'
-import rehypeStringify from "rehype-stringify"
-import rehypeHighlight from "rehype-highlight"
-import matter from "gray-matter"
-import fs from "fs"
-import path from "path"
-import Onthispage from '@/components/Onthispage'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import { rehypePrettyCode } from 'rehype-pretty-code'
-import { transformerCopyButton } from '@rehype-pretty/transformers'
-import { Metadata } from 'next'
+import MaxWidthWrapper from '@/components/MaxWidthWrapper';
+import React from 'react';
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkFrontmatter from "remark-frontmatter"; 
+import remarkRehype from "remark-rehype";
+import rehypeSlug from 'rehype-slug';
+import rehypeStringify from "rehype-stringify";
+import rehypeHighlight from "rehype-highlight";
+import matter from "gray-matter";
+import fs from "fs";
+import path from "path";
+import Onthispage from '@/components/Onthispage';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { rehypePrettyCode } from 'rehype-pretty-code';
+import { transformerCopyButton } from '@rehype-pretty/transformers';
+import { Metadata } from 'next';
 
-// **Ensure params are correctly typed using Next.js PageProps**
+// **Step 1: Fix the Type Error**
+// Ensure `params` is correctly typed by awaiting it properly
 interface BlogPageProps {
   params: { slug: string };
 }
 
-// Function to fetch markdown content
+// **Step 2: Fetch Markdown Content**
 async function getMarkdownContent(slug: string) {
   const filePath = path.join(process.cwd(), "content", `${slug}.md`);
 
@@ -53,8 +54,8 @@ async function getMarkdownContent(slug: string) {
   return { data, htmlContent };
 }
 
-// **Blog Page Component**
-export default async function BlogPage({ params }: BlogPageProps) {
+// **Step 3: Fix BlogPage Component**
+export default async function BlogPage({ params }: Awaited<BlogPageProps>) {
   const { data, htmlContent } = await getMarkdownContent(params.slug);
 
   return (
@@ -70,9 +71,9 @@ export default async function BlogPage({ params }: BlogPageProps) {
   );
 }
 
-// **Metadata Generation**
+// **Step 4: Fix Metadata Generation**
 export async function generateMetadata(
-  { params }: BlogPageProps
+  { params }: Awaited<BlogPageProps>
 ): Promise<Metadata> {
   const { data } = await getMarkdownContent(params.slug);
 

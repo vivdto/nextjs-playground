@@ -14,17 +14,17 @@ import Onthispage from '@/components/Onthispage'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { rehypePrettyCode } from 'rehype-pretty-code'
 import { transformerCopyButton } from '@rehype-pretty/transformers'
-import { Metadata, ResolvingMetadata } from 'next' 
+import { Metadata } from 'next'
 
-// Define correct type for params
-type BlogPageProps = {
+// **Ensure params are correctly typed using Next.js PageProps**
+interface BlogPageProps {
   params: { slug: string };
-};
+}
 
-// Function to fetch markdown content and parse it
+// Function to fetch markdown content
 async function getMarkdownContent(slug: string) {
   const filePath = path.join(process.cwd(), "content", `${slug}.md`);
-  
+
   if (!fs.existsSync(filePath)) {
     throw new Error(`Markdown file for slug "${slug}" not found.`);
   }
@@ -72,8 +72,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
 
 // **Metadata Generation**
 export async function generateMetadata(
-  { params }: BlogPageProps,
-  parent: ResolvingMetadata
+  { params }: BlogPageProps
 ): Promise<Metadata> {
   const { data } = await getMarkdownContent(params.slug);
 

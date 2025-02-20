@@ -9,71 +9,76 @@ import rehypeStringify from "rehype-stringify"
 import rehypeHighlight from "rehype-highlight"
 import matter from "gray-matter"
 import fs from "fs"
+import path from "path"
 import Onthispage from '@/components/Onthispage'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { rehypePrettyCode } from 'rehype-pretty-code'
 import { transformerCopyButton } from '@rehype-pretty/transformers'
 import { Metadata, ResolvingMetadata } from 'next' 
 
- 
-type Props = {
-  params: { slug: string, title: string, description: string }
-  searchParams: { [key: string]: string | string[] | undefined }
-}
+// Define correct type for params
+type BlogPageProps = {
+  params: { slug: string };
+};
 
-// https://ondrejsevcik.com/blog/building-perfect-markdown-processor-for-my-blog
-
-
-export default async function BlogPage({ params }: { params: { slug: string } }) {
-  const processor = unified()
-  .use(remarkParse)
-  .use(remarkRehype) 
-  .use(rehypeStringify) 
-  .use(rehypeSlug)
-  .use(rehypePrettyCode, {
-    theme: "github-dark",
-    transformers: [
-      transformerCopyButton({
-        visibility: 'always',
-        feedbackDuration: 3_000,
-      }),
-    ],
-  },
-)
-  .use(rehypeAutolinkHeadings)
-
-
-const filePath = `content/${params.slug}.md`
-const fileContent = fs.readFileSync(filePath, "utf-8");
-const {data, content} = matter(fileContent)
-
-const htmlContent = (await processor.process(content)).toString()
-  return (
-   <MaxWidthWrapper className='prose dark:prose-invert'> 
-   <div className='flex '> 
-    <div className='px-16'> 
-        <h1>{data.title}</h1>
-        <div dangerouslySetInnerHTML={{__html: htmlContent}}></div> 
-    </div>
-        <Onthispage className="text-sm w-[50%]" htmlContent={htmlContent}/>
-   </div>
- 
-   </MaxWidthWrapper>
-  )
-}  
-
-
-export async function generateMetadata(
-  { params, searchParams }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  // read route params 
-  const filePath = `content/${params.slug}.md`
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const {data} = matter(fileContent)
-  return {
-    title: `${data.title} - ProgrammingWithHarry`, 
-    description: data.description
+// Function to fetch markdown content and parse it
+async function getMarkdownContent(slug: string) {
+  const filePath = path.join(process.cwd(), "content", `${slug}.md`);
+  
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Markdown file for slug "${slug}" not found.`);
   }
 
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = matter(fileContent);
+
+  const processor = unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .use(rehypeSlug)
+    .use(rehypePrettyCode, {
+      theme: "github-dark",
+      transformers: [
+        transformerCopyButton({
+          visibility: 'always',
+          feedbackDuration: 3000,
+        }),
+      ],
+    })
+    .use(rehypeAutolinkHeadings);
+
+  const htmlContent = (await processor.process(content)).toString();
+
+  return { data, htmlContent };
+}
+
+// **Blog Page Component**
+export default async function BlogPage({ params }: BlogPageProps) {
+  const { data, htmlContent } = await getMarkdownContent(params.slug);
+
+  return (
+    <MaxWidthWrapper className='prose dark:prose-invert'> 
+      <div className='flex'> 
+        <div className='px-16'> 
+          <h1>{data.title}</h1>
+          <div dangerouslySetInnerHTML={{ __html: htmlContent }}></div> 
+        </div>
+        <Onthispage className="text-sm w-[50%]" htmlContent={htmlContent} />
+      </div>
+    </MaxWidthWrapper>
+  );
+}
+
+// **Metadata Generation**
+export async function generateMetadata(
+  { params }: BlogPageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { data } = await getMarkdownContent(params.slug);
+
+  return {
+    title: `${data.title} - ProgrammingWithHarry`, 
+    description: data.description || "A blog post on ProgrammingWithHarry."
+  };
 }

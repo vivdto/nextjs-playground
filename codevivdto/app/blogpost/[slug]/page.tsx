@@ -16,13 +16,12 @@ import { rehypePrettyCode } from 'rehype-pretty-code';
 import { transformerCopyButton } from '@rehype-pretty/transformers';
 import { Metadata } from 'next';
 
-// **Step 1: Fix the Type Error**
-// Ensure `params` is correctly typed by awaiting it properly
+// ✅ Step 1: Ensure correct typing for params
 interface BlogPageProps {
-  params: { slug: string };
+  params: { slug: string };  // ✅ No async or Promise here
 }
 
-// **Step 2: Fetch Markdown Content**
+// ✅ Step 2: Fetch Markdown Content (remains unchanged)
 async function getMarkdownContent(slug: string) {
   const filePath = path.join(process.cwd(), "content", `${slug}.md`);
 
@@ -54,9 +53,10 @@ async function getMarkdownContent(slug: string) {
   return { data, htmlContent };
 }
 
-// **Step 3: Fix BlogPage Component**
-export default async function BlogPage({ params }: Awaited<BlogPageProps>) {
-  const { data, htmlContent } = await getMarkdownContent(params.slug);
+// ✅ Step 3: Ensure Correct Function Signature (No Awaited<>)
+export default async function BlogPage({ params }: BlogPageProps) {  
+  const { slug } = params;  // ✅ Directly extract slug
+  const { data, htmlContent } = await getMarkdownContent(slug);
 
   return (
     <MaxWidthWrapper className='prose dark:prose-invert'> 
@@ -71,11 +71,12 @@ export default async function BlogPage({ params }: Awaited<BlogPageProps>) {
   );
 }
 
-// **Step 4: Fix Metadata Generation**
+// ✅ Step 4: Correct Metadata Generation
 export async function generateMetadata(
-  { params }: Awaited<BlogPageProps>
+  { params }: BlogPageProps
 ): Promise<Metadata> {
-  const { data } = await getMarkdownContent(params.slug);
+  const { slug } = params;
+  const { data } = await getMarkdownContent(slug);
 
   return {
     title: `${data.title} - ProgrammingWithHarry`, 
